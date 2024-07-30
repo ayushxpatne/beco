@@ -57,33 +57,30 @@ class TaskCard_Timeline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        width: MediaQuery.of(context).size.width,
-        decoration: const BoxDecoration(
-            // border: Border.all(width: 1, color: Colors.black),
-            color: ThemeColors.white,
-            borderRadius: BorderRadius.all(Radius.circular(16))),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: ThemeTextStyles.white18.copyWith(color: Colors.black),
-            ),
-            // OutlineTextButtonPill(
-            //     label: 'START', onTapButton: () => onTapButton())
-            Text(
-              timer,
-              style: ThemeTextStyles.white18.copyWith(
-                color: Colors.black,
-              ),
-            ),
-          ],
-        ),
+    return Container(
+      alignment: Alignment.centerLeft,
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
+      width: MediaQuery.of(context).size.width,
+      decoration: const BoxDecoration(
+          // border: Border.all(width: 1, color: Colors.black),
+          color: ThemeColors.white,
+          border: Border(bottom: BorderSide(width: 0.2))),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: ThemeTextStyles.white18
+                .copyWith(color: Colors.black, fontWeight: FontWeight.w600),
+          ),
+          // OutlineTextButtonPill(
+          //     label: 'START', onTapButton: () => onTapButton())
+          Text(
+            timer,
+            style: ThemeTextStyles.white18
+                .copyWith(color: Colors.black, fontWeight: FontWeight.w600),
+          ),
+        ],
       ),
     );
   }

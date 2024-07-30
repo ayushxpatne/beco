@@ -3,7 +3,4 @@
 import 'package:beco_productivity/models/project_model.dart';
 import 'package:get/get.dart';
 
-final projectList = <Project>[
-  Project('taskTitle', false),
-  Project('taskTitle-2', false),
-].obs;
+final projectListC = <Project>[].obs;

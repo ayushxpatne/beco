@@ -4,14 +4,9 @@ import 'dart:convert';
 import 'package:beco_productivity/models/project_model.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:beco_productivity/db/projectList.dart';
+import 'package:beco_productivity/database/projectList.dart';
 
 class ProjectsController extends GetxController {
-  final projectListC = <Project>[
-    Project('taskTitle', false),
-    Project('taskTitle-2', false),
-  ].obs;
-
   final storage = GetStorage();
   final String projectListKey = 'project_list';
 
@@ -19,7 +14,9 @@ class ProjectsController extends GetxController {
   void onInit() {
     super.onInit();
 
-    readGetStorage();
+    if (projectListC.isNotEmpty) {
+      readGetStorage();
+    }
   }
 
   void saveToGetStorage() {
@@ -36,6 +33,8 @@ class ProjectsController extends GetxController {
     projectListC.isNotEmpty
         ? storage.write(projectListKey, projectListJSON)
         : storage.write(projectListKey, ifEmptyThenWrite);
+
+    update();
   }
 
   void readGetStorage() {
@@ -45,13 +44,17 @@ class ProjectsController extends GetxController {
       List<dynamic> decoded = jsonDecode(projectsString);
       projectListC.value =
           decoded.map((item) => Project.fromJson(item)).toList();
-    } else {
-      projectListC.value = [Project('Yes Tasks', false)];
     }
+  }
+
+  void addToProjectListC(taskTitle) {
+    projectListC.add(Project(taskTitle, false));
+    saveToGetStorage();
   }
 
   void toggleIsRunning(index) {
     projectListC[index].isRunning = !projectListC[index].isRunning;
+    saveToGetStorage();
   }
 
   Project getProjectFromIndex(index) => projectListC[index];

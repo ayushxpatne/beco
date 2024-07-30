@@ -3,13 +3,16 @@
 import 'package:beco_productivity/controllers/global_variable_controller.dart';
 import 'package:beco_productivity/controllers/projects_controller.dart';
 import 'package:beco_productivity/controllers/stopwatch_controller.dart';
+import 'package:beco_productivity/controllers/timeline_controller.dart';
+import 'package:beco_productivity/models/timeline_object_model.dart';
 import 'package:get/get.dart';
 
 import '../models/project_model.dart';
 
 class OnTapStartStopController extends GetxController {
   final GlobalController globalController = Get.find<GlobalController>();
-  final ProjectsController projectsController = Get.find<ProjectsController>();
+  final ProjectsController projectsController = Get.put(ProjectsController());
+  final TimelineController timelineController = Get.put(TimelineController());
 
   void startProject(int index, GlobalStopwatch globalStopwatch) {
     globalController.toggle_IsAnyProjectRunningValue();
@@ -23,12 +26,19 @@ class OnTapStartStopController extends GetxController {
     globalStopwatch.start();
   }
 
-  void stopProject(int index, GlobalStopwatch globalStopwatch) {
+  void stopProject(int index, GlobalStopwatch globalStopwatch,
+      String globalStopwatchResult) {
     globalController.toggle_IsAnyProjectRunningValue();
     globalStopwatch.stop();
     Project getProjectFromIndex = projectsController.getProjectFromIndex(index);
 
     //timeline code
+    TimelineObject timelineObject = TimelineObject(
+      getProjectFromIndex.taskTitle,
+      globalStopwatchResult,
+      DateTime.now(),
+    );
+    timelineController.addToTimeline(timelineObject);
 
     globalController.clearNameOfProjectRunning();
     globalController.clearProjectRunningIndex();

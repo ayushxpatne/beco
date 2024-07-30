@@ -6,6 +6,7 @@ class ThemeColors {
   static const Color accentMain = Color.fromRGBO(55, 50, 255, 1);
   static const Color white = Color.fromRGBO(255, 255, 255, 1);
   static const Color red_stop = Color.fromARGB(255, 255, 50, 77);
+  static const Color black = Colors.black;
 }
 
 class ThemeTextStyles {

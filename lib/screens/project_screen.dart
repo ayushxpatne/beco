@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 
 import '../controllers/global_variable_controller.dart';
 import '../controllers/stopwatch_controller.dart';
+import '../database/projectList.dart';
 import '../models/project_model.dart';
 import '../widgets/fab.dart';
 import '../widgets/texts.dart';
@@ -39,7 +40,7 @@ class ProjectScreen extends StatelessWidget {
             padding: const EdgeInsets.only(top: 20, right: 4),
             child: IconButton(
                 onPressed: () {
-                  Get.to(() =>EachProjectScreen());
+                  Get.to(() => EachProjectScreen());
                 },
                 icon: const Icon(
                   Icons.add,
@@ -94,12 +95,10 @@ class _ProjectScreenBodyState extends State<ProjectScreenBody> {
   @override
   Widget build(BuildContext context) {
     // ignore: non_constant_identifier_names
+    // projectsController.saveToGetStorage();
 
     final String globalStopwatchResult =
         _globalStopwatch.elapsed.toString().split('.').first.padLeft(8, "0");
-
-    final List<Project> _projectList = projectsController.projectListC;
-    projectsController.saveToGetStorage();
 
     final int _indexOfRunningTask = globalController.projectRunningIndex.value;
 
@@ -110,37 +109,71 @@ class _ProjectScreenBodyState extends State<ProjectScreenBody> {
         const SizedBox(
           height: 16,
         ),
-        Obx(() => ListView.builder(
-            shrinkWrap: true,
-            itemCount: _projectList.length,
-            itemBuilder: (context, index) {
-              final thisTask = _projectList[index];
-              return TaskCard_ProjectsPage(
-                  label: thisTask.taskTitle,
-                  startOrStopButton: StartStopButtonPill(
-                      label: thisTask.isRunning ? 'STOP' : 'START',
-                      onTapButton: () {
-                        globalController.assign_IndexOfProjectRunning(index);
-                        if (globalController.isAnyProjectRunning.isTrue) {
-                          if (thisTask.isRunning) {
-                            onTapStartStopController.stopProject(
-                                index, _globalStopwatch);
-                          } else {
-                            onTapStartStopController.stopProject(
-                                _indexOfRunningTask, _globalStopwatch);
-                            onTapStartStopController.startProject(
-                                index, _globalStopwatch);
-                          }
-                        } else {
-                          onTapStartStopController.startProject(
-                              index, _globalStopwatch);
-                        }
-                      },
-                      buttonAccentColor: thisTask.isRunning
-                          ? ThemeColors.red_stop
-                          : ThemeColors.accentMain));
-            }))
+        Obx(() => projectListC.isEmpty
+            ? const Text('No Projects Found')
+            : ShowProjects(
+                projectList: projectListC,
+                globalStopwatch: _globalStopwatch,
+                indexOfRunningTask: _indexOfRunningTask,
+                globalController: globalController,
+                globalStopwatchResult: globalStopwatchResult,
+                onTapStartStopController: onTapStartStopController,
+              ))
       ],
     );
+  }
+}
+
+class ShowProjects extends StatelessWidget {
+  ShowProjects({
+    super.key,
+    required this.projectList,
+    required this.globalStopwatch,
+    required this.indexOfRunningTask,
+    required this.globalController,
+    required this.onTapStartStopController,
+    required this.globalStopwatchResult,
+  });
+  List projectList;
+  GlobalController globalController;
+  GlobalStopwatch globalStopwatch;
+  int indexOfRunningTask;
+  String globalStopwatchResult;
+
+  OnTapStartStopController onTapStartStopController =
+      Get.put(OnTapStartStopController());
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+        shrinkWrap: true,
+        itemCount: projectList.length,
+        itemBuilder: (context, index) {
+          final thisTask = projectList[index];
+          return TaskCard_ProjectsPage(
+              label: thisTask.taskTitle,
+              startOrStopButton: StartStopButtonPill(
+                  label: thisTask.isRunning ? 'STOP' : 'START',
+                  onTapButton: () {
+                    globalController.assign_IndexOfProjectRunning(index);
+                    if (globalController.isAnyProjectRunning.isTrue) {
+                      if (thisTask.isRunning) {
+                        onTapStartStopController.stopProject(
+                            index, globalStopwatch, globalStopwatchResult);
+                      } else {
+                        onTapStartStopController.stopProject(indexOfRunningTask,
+                            globalStopwatch, globalStopwatchResult);
+                        onTapStartStopController.startProject(
+                            index, globalStopwatch);
+                      }
+                    } else {
+                      onTapStartStopController.startProject(
+                          index, globalStopwatch);
+                    }
+                  },
+                  buttonAccentColor: thisTask.isRunning
+                      ? ThemeColors.red_stop
+                      : ThemeColors.accentMain));
+        });
   }
 }

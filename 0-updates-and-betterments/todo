@@ -4,3 +4,9 @@ add project functionality
 add delete timeline projects etc
 
 replace listview builder with something which doesnt deletes on app deletion / save application state
+
+
+30 jul
+if any task is working then only show the top card with stop button
+add objects to timeline when stop
+figure out a way to cluster the time per task ughhhh

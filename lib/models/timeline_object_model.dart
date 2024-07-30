@@ -1,15 +1,34 @@
-
 // ignore: camel_case_types
-class Timeline_Object {
+import 'package:intl/intl.dart';
+
+class TimelineObject {
   final String title;
-  bool isRunning;
   final String elapsedTime;
   final DateTime date;
 
-  Timeline_Object(
+  TimelineObject(
     this.title,
     this.elapsedTime,
     this.date,
-    this.isRunning
   );
+
+  // Convert a TimelineObject instance to a JSON object
+  Map<String, dynamic> toJSON() {
+    return {
+      'title': title,
+      'elapsedTime': elapsedTime,
+      'date':
+          DateFormat('dd-MM-yyyy').format(date), // DateTime to ISO 8601 string
+    };
+  }
+
+  // Create a TimelineObject instance from a JSON object
+  factory TimelineObject.fromJSON(Map<String, dynamic> json) {
+    return TimelineObject(
+      json['title'],
+      json['elapsedTime'],
+      DateFormat('dd-MM-yyyy')
+          .parse(json['date']), // ISO 8601 string to DateTime
+    );
+  }
 }
