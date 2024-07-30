@@ -1,0 +1,6 @@
+make homescreen card for current task running
+make the timeline look better
+add project functionality 
+add delete timeline projects etc
+
+replace listview builder with something which doesnt deletes on app deletion / save application state

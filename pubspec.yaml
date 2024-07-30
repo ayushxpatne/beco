@@ -1,0 +1,32 @@
+name: beco_productivity
+description: A new Flutter project.
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.0.2 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  get:
+  get_storage: ^2.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+  
+  fonts:
+  - family: NeueHaas
+    fonts:
+    - asset: fonts/NeueHaasDisplayBold.ttf
+      weight: 800
+    - asset: fonts/NeueHaasDisplayMediu.ttf
+      weight: 700
+    - asset: fonts/NeueHaasDisplayRoman.ttf
+      weight: 500
+
