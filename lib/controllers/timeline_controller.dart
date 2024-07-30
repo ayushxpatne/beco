@@ -19,7 +19,6 @@ class TimelineController extends GetxController {
   void onInit() {
     super.onInit();
 
-    saveTimelineToStorage();
     readFromStorage();
   }
 
@@ -40,6 +39,8 @@ class TimelineController extends GetxController {
       timelineList.value =
           decodeJSON.map((e) => TimelineObject.fromJSON(e)).toList();
     }
+
+    update();
   }
 
   void addToTimeline(TimelineObject timelineObject) {

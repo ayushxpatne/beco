@@ -3,4 +3,4 @@
 import 'package:beco_productivity/models/project_model.dart';
 import 'package:get/get.dart';
 
-final projectListC = <Project>[].obs;
+RxList projectListC = <Project>[].obs;

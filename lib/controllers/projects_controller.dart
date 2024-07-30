@@ -13,10 +13,7 @@ class ProjectsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-
-    if (projectListC.isNotEmpty) {
-      readGetStorage();
-    }
+    readGetStorage();
   }
 
   void saveToGetStorage() {
@@ -25,14 +22,7 @@ class ProjectsController extends GetxController {
     String projectListJSON =
         jsonEncode(projectListC.map((e) => e.toJson()).toList());
 
-    String ifEmptyThenWrite = jsonEncode({
-      'taskTitle': 'Empty',
-      'isRunning': 'false',
-    });
-
-    projectListC.isNotEmpty
-        ? storage.write(projectListKey, projectListJSON)
-        : storage.write(projectListKey, ifEmptyThenWrite);
+    storage.write(projectListKey, projectListJSON);
 
     update();
   }
@@ -45,6 +35,8 @@ class ProjectsController extends GetxController {
       projectListC.value =
           decoded.map((item) => Project.fromJson(item)).toList();
     }
+
+    update();
   }
 
   void addToProjectListC(taskTitle) {

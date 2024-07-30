@@ -3,6 +3,6 @@
 import 'package:beco_productivity/models/timeline_object_model.dart';
 import 'package:get/get.dart';
 
-RxList timelineList = [
+RxList<TimelineObject> timelineList = <TimelineObject>[
   // Timeline_Object('title-1', '00:00:00', DateTime.now(), false)
 ].obs;

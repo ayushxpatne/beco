@@ -8,6 +8,7 @@ import 'controllers/global_variable_controller.dart';
 
 void main() async {
   Get.put(GlobalController());
+  await GetStorage.init();
 
   runApp(MainApp());
 }
