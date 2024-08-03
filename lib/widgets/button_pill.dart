@@ -8,10 +8,14 @@ class TextButtonPill extends StatelessWidget {
     super.key,
     required this.label,
     required this.onTapButton,
+    this.backgroundColor,
+    this.foregroundColor,
   });
 
   final String label;
   final Function onTapButton;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +27,8 @@ class TextButtonPill extends StatelessWidget {
           horizontal: 24,
           vertical: 8,
         ),
-        backgroundColor: ThemeColors.white,
-        foregroundColor: ThemeColors.accentMain,
+        backgroundColor: backgroundColor ?? ThemeColors.white,
+        foregroundColor: foregroundColor ?? ThemeColors.accentMain,
         elevation: 0,
         shape: const StadiumBorder(),
       ),

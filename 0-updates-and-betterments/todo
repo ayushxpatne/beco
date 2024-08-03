@@ -9,4 +9,18 @@ replace listview builder with something which doesnt deletes on app deletion / s
 30 jul
 if any task is working then only show the top card with stop button
 add objects to timeline when stop
-figure out a way to cluster the time per task ughhhh
+figure out a way to cluster the time per task ughhhh\
+
+31 july
+
+DONE - on clear the storage by pressing x (see homescreen) when first taskis added its added twice
+add snackbar implementation
+add rename functionality 
+cluster the time per task
+notes
+
+1 aug
+ability to rename projects and their duration and date.
+export features
+
+

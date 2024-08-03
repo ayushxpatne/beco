@@ -1,7 +1,9 @@
 // ignore_for_file: prefer_const_constructors_in_immutables
 
+import 'package:beco_productivity/screens/edit_timeline_object.dart';
 import 'package:beco_productivity/widgets/texts.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 // ignore: camel_case_types, must_be_immutable
 class TaskCard_ProjectsPage extends StatelessWidget {
@@ -9,9 +11,11 @@ class TaskCard_ProjectsPage extends StatelessWidget {
     super.key,
     required this.label,
     required this.startOrStopButton,
+    required this.onPressedTitle,
   });
 
   final String label;
+  final Function onPressedTitle;
 
   Widget startOrStopButton;
 
@@ -30,9 +34,16 @@ class TaskCard_ProjectsPage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: ThemeTextStyles.white18.copyWith(color: Colors.black),
+            Flexible(
+              child: GestureDetector(
+                onTap: () => onPressedTitle(),
+                child: Text(
+                  label,
+                  style: ThemeTextStyles.white18.copyWith(color: Colors.black),
+                  overflow: TextOverflow.fade,
+                  maxLines: 2,
+                ),
+              ),
             ),
             // OutlineTextButtonPill(
             //     label: 'START', onTapButton: () => onTapButton())
@@ -67,14 +78,22 @@ class TaskCard_Timeline extends StatelessWidget {
           border: Border(bottom: BorderSide(width: 0.2))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: ThemeTextStyles.white18
-                .copyWith(color: Colors.black, fontWeight: FontWeight.w600),
+          Flexible(
+            child: Text(
+              label,
+              style: ThemeTextStyles.white18
+                  .copyWith(color: Colors.black, fontWeight: FontWeight.w600),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
           ),
           // OutlineTextButtonPill(
           //     label: 'START', onTapButton: () => onTapButton())
+          const SizedBox(
+            width: 32,
+          ),
           Text(
             timer,
             style: ThemeTextStyles.white18

@@ -1,11 +1,11 @@
 import 'package:beco_productivity/controllers/global_variable_controller.dart';
-import 'package:beco_productivity/controllers/projects_controller.dart';
 import 'package:beco_productivity/controllers/stopwatch_controller.dart';
-import 'package:beco_productivity/database/timelineList.dart';
-import 'package:beco_productivity/models/timeline_object_model.dart';
+import 'package:beco_productivity/controllers/timeline_controller.dart';
+import 'package:beco_productivity/screens/edit_timeline_object.dart';
+
 import 'package:beco_productivity/screens/project_screen.dart';
 import 'package:beco_productivity/widgets/fab.dart';
-import 'package:beco_productivity/widgets/tasks_card_project_page.dart';
+import 'package:beco_productivity/widgets/tasks_card_widgets.dart';
 import 'package:beco_productivity/widgets/texts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,15 +23,16 @@ class Homescreen extends StatelessWidget {
         floatingActionButton: FABPill(
             onTapFAB: () {
               Get.to(
-                () => ProjectScreen(),
+                () => const ProjectScreen(),
                 transition: Transition.fadeIn,
                 duration: const Duration(milliseconds: 400),
               );
             },
             labelFAB: 'Projects',
             textStyleFAB: ThemeTextStyles.white18),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: const Padding(
             padding: EdgeInsets.only(
               top: 32,
@@ -80,27 +81,43 @@ class _HomescreenBodyState extends State<HomescreenBody> {
     final OnTapStartStopController onTapStartStopController =
         Get.put(OnTapStartStopController());
 
+    final TimelineController timelineController = Get.put(TimelineController());
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          globalController.isAnyProjectRunning.isTrue
-              ? OngoingTaskCardHeader(
-                  title: globalController.nameOfProjectRunning.value,
-                  globalStopwatch: globalStopwatchResult,
-                  buttonLabel: 'STOP',
-                  onTapButton: () {
-                    onTapStartStopController.stopProject(
-                        globalController.projectRunningIndex.value,
-                        _globalStopwatch,
-                        globalStopwatchResult);
-                  },
-                )
-              : const SizedBox(
-                  height: 32,
-                ),
-          Timeline(),
+          // ElevatedButton(
+          //     onPressed: () => timelineController.clearTimeline(),
+          //     child: Text('x')),
+          Obx(
+            () => AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+              child: globalController.isAnyProjectRunning.isTrue
+                  ? OngoingTaskCardHeader(
+                      key: ValueKey<bool>(
+                          globalController.isAnyProjectRunning.value),
+                      title: globalController.nameOfProjectRunning.value,
+                      globalStopwatch: globalStopwatchResult,
+                      buttonLabel: 'STOP',
+                      onTapButton: () {
+                        onTapStartStopController.stopProject(
+                          globalController.projectRunningIndex.value,
+                          _globalStopwatch,
+                        );
+                      },
+                    )
+                  : const SizedBox(
+                      key: ValueKey<bool>(false),
+                      height: 32,
+                    ),
+            ),
+          ),
+          const Timeline(),
         ],
       ),
     );
@@ -118,6 +135,7 @@ class _TimelineState extends State<Timeline> {
   @override
   Widget build(BuildContext context) {
     final GlobalController globalController = Get.find<GlobalController>();
+    final TimelineController timelineController = Get.put(TimelineController());
 
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -138,37 +156,99 @@ class _TimelineState extends State<Timeline> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Timeline:',
-            style: ThemeTextStyles.white18.copyWith(
-                color: ThemeColors.black, fontWeight: FontWeight.w600),
-          ),
           Expanded(
-            child: Obx(() {
-              final groupedByDateTimeline = groupTimelineByDate(timelineList);
-              final datesInTimeline = groupedByDateTimeline.keys.toList();
+            child: Obx(
+              () {
+                final groupedByDateTimeline =
+                    timelineController.groupTimelineByDate(
+                        timelineController.displayedTimelineList);
+                final datesInTimeline = groupedByDateTimeline.keys.toList();
 
-              return ListView.builder(
-                itemCount: datesInTimeline.length,
-                itemBuilder: ((context, index) {
-                  final date = datesInTimeline[index];
-                  final eventsOnDate = groupedByDateTimeline[date];
+                String todaysDate =
+                    DateFormat('dd-MM-yyyy').format(DateTime.now());
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(date),
-                      ...eventsOnDate!.reversed.map((currentTask) {
-                        return TaskCard_Timeline(
-                          label: currentTask.title,
-                          timer: currentTask.elapsedTime,
-                        );
-                      }).toList(),
-                    ],
+                if (timelineController.displayedTimelineList.isEmpty &&
+                    !timelineController.isLoading.value) {
+                  return Container(
+                    alignment: Alignment.topCenter,
+                    child: const Text(
+                      'No Tasks Yet',
+                    ),
                   );
-                }),
-              );
-            }),
+                }
+
+                return ListView.builder(
+                  itemCount: datesInTimeline.length + 1,
+                  itemBuilder: ((context, index) {
+                    if (index < datesInTimeline.length) {
+                      final date = datesInTimeline[index];
+                      final eventsOnDate =
+                          groupedByDateTimeline[date]!.toList();
+
+                      String label = displayTodayLogic(date, todaysDate);
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: Text(
+                              label,
+                              style: ThemeTextStyles.white18.copyWith(
+                                  color: ThemeColors.black,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                          ...eventsOnDate!.map((currentTask) {
+                            return GestureDetector(
+                              onTap: () => {
+                                Get.to(() => EditTimelineObject(
+                                      currentTask: currentTask,
+                                      index: eventsOnDate.indexOf(currentTask),
+                                    ))
+                              },
+                              child: TaskCard_Timeline(
+                                label: currentTask.title,
+                                timer: currentTask.elapsedTime,
+                              ),
+                            );
+                          }).toList(),
+                        ],
+                      );
+                    } else {
+                      // timelineController.loadMoreItems(forceReload: true);
+                      if (timelineController.isLoading.isFalse) {
+                        return const SizedBox.shrink();
+                      }
+                      // Loading indicator at the end of the list
+                      if (timelineController.isLoading.isTrue) {
+                        // if (timelineController.displayedTimelineList.isEmpty) {
+                        //   return const Center(
+                        //     child: Text(
+                        //       'No Tasks Yet Inside',
+                        //     ),
+                        //   );
+                        // }
+                        return const Center(
+                            child: Padding(
+                          padding: EdgeInsets.all(32),
+                          child: SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(
+                              color: ThemeColors.accentMain,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        ));
+                      } else {
+                        timelineController.loadMoreItems();
+                        return const SizedBox.shrink();
+                      }
+                    }
+                  }),
+                );
+              },
+            ),
           ),
           SizedBox(
             height: screenHeight / 6,
@@ -179,25 +259,24 @@ class _TimelineState extends State<Timeline> {
   }
 }
 
-Map<String, List<TimelineObject>> groupTimelineByDate(
-  RxList<TimelineObject> timelineList,
-) {
-  Map<String, List<TimelineObject>> groupedTimelineByDate = {};
+String displayTodayLogic(date, todaysDate) {
+  String label = '';
+  if (date == todaysDate) {
+    label = 'Today ';
+  } else {
+    // Example input string
+    String inputFormat = "dd-MM-yyyy"; // Input format
 
-  timelineList.sort(
-    (a, b) => a.date.compareTo(b.date),
-  );
+    // Parse the string into a DateTime object
+    DateFormat inputDateFormatter = DateFormat(inputFormat);
+    DateTime dateTime = inputDateFormatter.parse(date);
 
-  for (TimelineObject timelineObject in timelineList) {
-    timelineList.refresh();
-    final date = DateFormat('dd-MM-yyyy').format(timelineObject.date);
-
-    if (!groupedTimelineByDate.containsKey(date)) {
-      groupedTimelineByDate[date] = [];
-    }
-
-    groupedTimelineByDate[date]?.add(timelineObject);
+    // Format the DateTime object into a different format if needed
+    String outputFormat = "MMM dd, EEEE'";
+    DateFormat outputDateFormatter = DateFormat(outputFormat);
+    String formattedDate = outputDateFormatter.format(dateTime);
+    label = formattedDate;
   }
 
-  return groupedTimelineByDate;
+  return label;
 }

@@ -1,18 +1,20 @@
-// ignore_for_file: file_names
+// ignore_for_file: avoid_print
 
-import 'package:beco_productivity/controllers/global_variable_controller.dart';
 import 'package:beco_productivity/controllers/projects_controller.dart';
 import 'package:beco_productivity/controllers/stopwatch_controller.dart';
 import 'package:beco_productivity/controllers/timeline_controller.dart';
-import 'package:beco_productivity/models/timeline_object_model.dart';
 import 'package:get/get.dart';
 
 import '../models/project_model.dart';
+import '../models/timeline_object_model.dart';
+import 'global_variable_controller.dart';
 
 class OnTapStartStopController extends GetxController {
   final GlobalController globalController = Get.find<GlobalController>();
   final ProjectsController projectsController = Get.put(ProjectsController());
   final TimelineController timelineController = Get.put(TimelineController());
+
+  DateTime? projectStartTime;
 
   void startProject(int index, GlobalStopwatch globalStopwatch) {
     globalController.toggle_IsAnyProjectRunningValue();
@@ -24,26 +26,49 @@ class OnTapStartStopController extends GetxController {
 
     projectsController.toggleIsRunning(index);
     globalStopwatch.start();
+
+    // Record the start time
+    projectStartTime = DateTime.now();
+    update();
   }
 
-  void stopProject(int index, GlobalStopwatch globalStopwatch,
-      String globalStopwatchResult) {
+  void stopProject(int index, GlobalStopwatch globalStopwatch) {
     globalController.toggle_IsAnyProjectRunningValue();
     globalStopwatch.stop();
+
+    DateTime projectEndTime = DateTime.now();
+
     Project getProjectFromIndex = projectsController.getProjectFromIndex(index);
 
-    //timeline code
-    TimelineObject timelineObject = TimelineObject(
-      getProjectFromIndex.taskTitle,
-      globalStopwatchResult,
-      DateTime.now(),
-    );
-    timelineController.addToTimeline(timelineObject);
+    // Ensure projectStartTime is not null
+    if (projectStartTime != null) {
+      // Create TimelineObject with start and end times
+      TimelineObject timelineObject = TimelineObject(
+        getProjectFromIndex.taskTitle,
+        projectStartTime!.toLocal(),
+        projectStartTime!,
+        projectEndTime,
+      );
+
+      // Add to timeline
+      timelineController.addToTimeline(timelineObject);
+
+      // Add to project's timeline objects
+      getProjectFromIndex.timelineObjects.add(timelineObject);
+      
+    } else {
+      print("Error: Project start time was not recorded.");
+    }
 
     globalController.clearNameOfProjectRunning();
     globalController.clearProjectRunningIndex();
 
     projectsController.toggleIsRunning(index);
     globalStopwatch.reset();
+
+    // Clear the start time
+    projectStartTime = null;
+    timelineController.update();
+    update();
   }
 }

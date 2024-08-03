@@ -1,18 +1,17 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers
-import 'package:beco_productivity/controllers/add_project_dialogue_box_controller.dart';
 import 'package:beco_productivity/controllers/onTap_start_or_stop_controller.dart';
 import 'package:beco_productivity/controllers/projects_controller.dart';
+import 'package:beco_productivity/database/projectList.dart';
+import 'package:beco_productivity/screens/add_project_screen.dart';
 import 'package:beco_productivity/screens/each_project_screen.dart';
 import 'package:beco_productivity/widgets/button_pill.dart';
-import 'package:beco_productivity/widgets/tasks_card_project_page.dart';
+import 'package:beco_productivity/widgets/tasks_card_widgets.dart';
 import 'package:beco_productivity/widgets/title_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/global_variable_controller.dart';
 import '../controllers/stopwatch_controller.dart';
-import '../database/projectList.dart';
-import '../models/project_model.dart';
 import '../widgets/fab.dart';
 import '../widgets/texts.dart';
 
@@ -40,7 +39,7 @@ class ProjectScreen extends StatelessWidget {
             padding: const EdgeInsets.only(top: 20, right: 4),
             child: IconButton(
                 onPressed: () {
-                  Get.to(() => EachProjectScreen());
+                  Get.to(() => const AddProjectScreen());
                 },
                 icon: const Icon(
                   Icons.add,
@@ -56,7 +55,7 @@ class ProjectScreen extends StatelessWidget {
           },
           labelFAB: 'Back',
           textStyleFAB: ThemeTextStyles.white18),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
@@ -96,6 +95,7 @@ class _ProjectScreenBodyState extends State<ProjectScreenBody> {
   Widget build(BuildContext context) {
     // ignore: non_constant_identifier_names
     // projectsController.saveToGetStorage();
+    final screenHeight = MediaQuery.of(context).size.height;
 
     final String globalStopwatchResult =
         _globalStopwatch.elapsed.toString().split('.').first.padLeft(8, "0");
@@ -109,21 +109,28 @@ class _ProjectScreenBodyState extends State<ProjectScreenBody> {
         const SizedBox(
           height: 16,
         ),
-        Obx(() => projectListC.isEmpty
-            ? const Text('No Projects Found')
-            : ShowProjects(
-                projectList: projectListC,
-                globalStopwatch: _globalStopwatch,
-                indexOfRunningTask: _indexOfRunningTask,
-                globalController: globalController,
-                globalStopwatchResult: globalStopwatchResult,
-                onTapStartStopController: onTapStartStopController,
-              ))
+        Expanded(
+          child: Obx(() => projectListC.isEmpty
+              ? const Text('No Projects Found')
+              : ShowProjects(
+                  projectList: projectListC,
+                  globalStopwatch: _globalStopwatch,
+                  indexOfRunningTask: _indexOfRunningTask,
+                  globalController: globalController,
+                  globalStopwatchResult: globalStopwatchResult,
+                  onTapStartStopController: onTapStartStopController,
+                  projectsController: projectsController,
+                )),
+        ),
+        SizedBox(
+          height: screenHeight / 6,
+        )
       ],
     );
   }
 }
 
+// ignore: must_be_immutable
 class ShowProjects extends StatelessWidget {
   ShowProjects({
     super.key,
@@ -133,47 +140,98 @@ class ShowProjects extends StatelessWidget {
     required this.globalController,
     required this.onTapStartStopController,
     required this.globalStopwatchResult,
+    required this.projectsController,
   });
   List projectList;
   GlobalController globalController;
   GlobalStopwatch globalStopwatch;
   int indexOfRunningTask;
   String globalStopwatchResult;
+  ProjectsController projectsController;
 
   OnTapStartStopController onTapStartStopController =
       Get.put(OnTapStartStopController());
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-        shrinkWrap: true,
-        itemCount: projectList.length,
-        itemBuilder: (context, index) {
-          final thisTask = projectList[index];
-          return TaskCard_ProjectsPage(
-              label: thisTask.taskTitle,
-              startOrStopButton: StartStopButtonPill(
-                  label: thisTask.isRunning ? 'STOP' : 'START',
-                  onTapButton: () {
-                    globalController.assign_IndexOfProjectRunning(index);
-                    if (globalController.isAnyProjectRunning.isTrue) {
-                      if (thisTask.isRunning) {
-                        onTapStartStopController.stopProject(
-                            index, globalStopwatch, globalStopwatchResult);
-                      } else {
-                        onTapStartStopController.stopProject(indexOfRunningTask,
-                            globalStopwatch, globalStopwatchResult);
-                        onTapStartStopController.startProject(
-                            index, globalStopwatch);
-                      }
-                    } else {
-                      onTapStartStopController.startProject(
-                          index, globalStopwatch);
-                    }
-                  },
-                  buttonAccentColor: thisTask.isRunning
-                      ? ThemeColors.red_stop
-                      : ThemeColors.accentMain));
-        });
+    return SizedBox(
+      child: ListView.builder(
+          itemCount: projectList.length,
+          itemBuilder: (context, index) {
+            final thisTask = projectList[index];
+            return Dismissible(
+              direction: DismissDirection.endToStart,
+              key: Key(thisTask.taskTitle),
+              confirmDismiss: (direction) async {
+                return await Get.defaultDialog(
+                  titlePadding:
+                      const EdgeInsets.only(top: 32, left: 32, right: 32),
+                  middleTextStyle: const TextStyle(fontSize: 0),
+                  title: 'Do you want to delete ${thisTask.taskTitle}?',
+                  titleStyle: ThemeTextStyles.white18.copyWith(
+                      color: ThemeColors.black, fontWeight: FontWeight.w600),
+                  contentPadding:
+                      EdgeInsets.only(bottom: 16, left: 32, right: 32),
+                  confirm: TextButtonPill(
+                      backgroundColor: ThemeColors.red_stop,
+                      foregroundColor: ThemeColors.white,
+                      label: 'Delete',
+                      onTapButton: () => Navigator.of(context).pop(true)),
+                  backgroundColor: ThemeColors.white,
+                  cancel: TextButtonPill(
+                      onTapButton: () => Navigator.of(context).pop(false),
+                      label: 'Cancel'),
+                );
+              },
+              onDismissed: (direction) =>
+                  (projectsController.removeFromProjectListC(thisTask)),
+              background: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Container(
+                  // alignment: Alignment.centerRight,
+                  // width: 100,
+                  color: ThemeColors.red_stop,
+                  child: const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Icon(
+                      Icons.delete,
+                      color: ThemeColors.white,
+                    ),
+                  ),
+                ),
+              ),
+              child: TaskCard_ProjectsPage(
+                  label: thisTask.taskTitle,
+                  onPressedTitle: () =>
+                      Get.to(() => EachProjectScreen(project: thisTask)),
+                  startOrStopButton: StartStopButtonPill(
+                      label: thisTask.isRunning ? 'STOP' : 'START',
+                      onTapButton: () {
+                        globalController.assign_IndexOfProjectRunning(index);
+                        if (globalController.isAnyProjectRunning.isTrue) {
+                          if (thisTask.isRunning) {
+                            onTapStartStopController.stopProject(
+                              index,
+                              globalStopwatch,
+                            );
+                          } else {
+                            onTapStartStopController.stopProject(
+                              indexOfRunningTask,
+                              globalStopwatch,
+                            );
+                            onTapStartStopController.startProject(
+                                index, globalStopwatch);
+                          }
+                        } else {
+                          onTapStartStopController.startProject(
+                              index, globalStopwatch);
+                        }
+                      },
+                      buttonAccentColor: thisTask.isRunning
+                          ? ThemeColors.red_stop
+                          : ThemeColors.accentMain)),
+            );
+          }),
+    );
   }
 }

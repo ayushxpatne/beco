@@ -31,12 +31,12 @@ class OngoingTaskCardHeader extends StatelessWidget {
             style: ThemeTextStyles.white18.copyWith(
                 color: ThemeColors.black, fontWeight: FontWeight.w600),
           ),
-          SizedBox(
+          const SizedBox(
             height: 16,
           ),
           Container(
               alignment: Alignment.center,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.width / 2.5,
               decoration: const BoxDecoration(
@@ -47,31 +47,21 @@ class OngoingTaskCardHeader extends StatelessWidget {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        title,
-                        style: ThemeTextStyles.white18,
+                      Flexible(
+                        child: Text(
+                          title,
+                          style: ThemeTextStyles.title24white,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                          softWrap: true,
+                        ),
                       ),
                       Text(
                         globalStopwatch,
-                        style: ThemeTextStyles.white18,
+                        style: ThemeTextStyles.title24white,
                       ),
-                    ],
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Note 1, Note 2',
-                        style: ThemeTextStyles.white18
-                            .copyWith(fontWeight: FontWeight.w500),
-                      ),
-                      Text(
-                        'Note 3',
-                        style: ThemeTextStyles.white18
-                            .copyWith(fontWeight: FontWeight.w500),
-                      )
                     ],
                   ),
                   const Expanded(

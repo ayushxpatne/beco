@@ -1,10 +1,10 @@
 // ignore_for_file: non_constant_identifier_names
 import 'dart:convert';
 
+import 'package:beco_productivity/database/projectList.dart';
 import 'package:beco_productivity/models/project_model.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:beco_productivity/database/projectList.dart';
 
 class ProjectsController extends GetxController {
   final storage = GetStorage();
@@ -40,13 +40,31 @@ class ProjectsController extends GetxController {
   }
 
   void addToProjectListC(taskTitle) {
-    projectListC.add(Project(taskTitle, false));
+    projectListC.add(Project(taskTitle: taskTitle, timelineObjects: []));
+    saveToGetStorage();
+  }
+
+  void removeFromProjectListC(Project thisTask) {
+    projectListC.remove(thisTask);
     saveToGetStorage();
   }
 
   void toggleIsRunning(index) {
     projectListC[index].isRunning = !projectListC[index].isRunning;
     saveToGetStorage();
+  }
+
+  bool projectAlreadyExists(String? newTaskTitle) {
+    late bool projectAlreadyExists = false;
+
+    for (Project project in projectListC) {
+      if (project.taskTitle == newTaskTitle) {
+        projectAlreadyExists = true;
+      } else {
+        projectAlreadyExists = false;
+      }
+    }
+    return projectAlreadyExists;
   }
 
   Project getProjectFromIndex(index) => projectListC[index];
