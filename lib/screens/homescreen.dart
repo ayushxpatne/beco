@@ -83,7 +83,9 @@ class _HomescreenBodyState extends State<HomescreenBody> {
 
     Get.put(TimelineController());
 
-    return SingleChildScrollView(
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,7 +119,14 @@ class _HomescreenBodyState extends State<HomescreenBody> {
                     ),
             ),
           ),
-          const Timeline(),
+          const Expanded(child: SingleChildScrollView(child: Timeline())),
+          Obx(() {
+            return globalController.isAnyProjectRunning.isTrue
+                ? SizedBox(
+                    height: screenHeight * 0.05,
+                  )
+                : const SizedBox.shrink();
+          })
         ],
       ),
     );
@@ -155,6 +164,7 @@ class _TimelineState extends State<Timeline> {
           : safeAreaHeight,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Obx(
             () {
@@ -168,10 +178,19 @@ class _TimelineState extends State<Timeline> {
 
               if (timelineController.displayedTimelineList.isEmpty &&
                   !timelineController.isLoading.value) {
-                return const SizedBox(
-                  child: Text(
-                    'No Tasks Yet',
-                  ),
+                return const Column(
+                  children: [
+                    SizedBox(
+                      key: ValueKey<bool>(false),
+                      height: 32,
+                    ),
+                    SizedBox(
+                      height: 100,
+                      child: Text(
+                        'No Tasks Yet',
+                      ),
+                    ),
+                  ],
                 );
               }
 
