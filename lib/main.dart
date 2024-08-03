@@ -32,6 +32,7 @@ class MainApp extends StatelessWidget {
               centerTitle: false,
               elevation: 0,
               backgroundColor: ThemeColors.white,
+              foregroundColor: ThemeColors.white,
               // titleSpacing: 32,
               titleTextStyle: ThemeTextStyles.title32),
           floatingActionButtonTheme: const FloatingActionButtonThemeData(

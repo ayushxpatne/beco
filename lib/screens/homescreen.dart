@@ -81,7 +81,7 @@ class _HomescreenBodyState extends State<HomescreenBody> {
     final OnTapStartStopController onTapStartStopController =
         Get.put(OnTapStartStopController());
 
-    final TimelineController timelineController = Get.put(TimelineController());
+    Get.put(TimelineController());
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -156,28 +156,27 @@ class _TimelineState extends State<Timeline> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Obx(
-              () {
-                final groupedByDateTimeline =
-                    timelineController.groupTimelineByDate(
-                        timelineController.displayedTimelineList);
-                final datesInTimeline = groupedByDateTimeline.keys.toList();
+          Obx(
+            () {
+              final groupedByDateTimeline =
+                  timelineController.groupTimelineByDate(
+                      timelineController.displayedTimelineList);
+              final datesInTimeline = groupedByDateTimeline.keys.toList();
 
-                String todaysDate =
-                    DateFormat('dd-MM-yyyy').format(DateTime.now());
+              String todaysDate =
+                  DateFormat('dd-MM-yyyy').format(DateTime.now());
 
-                if (timelineController.displayedTimelineList.isEmpty &&
-                    !timelineController.isLoading.value) {
-                  return Container(
-                    alignment: Alignment.topCenter,
-                    child: const Text(
-                      'No Tasks Yet',
-                    ),
-                  );
-                }
+              if (timelineController.displayedTimelineList.isEmpty &&
+                  !timelineController.isLoading.value) {
+                return const SizedBox(
+                  child: Text(
+                    'No Tasks Yet',
+                  ),
+                );
+              }
 
-                return ListView.builder(
+              return Expanded(
+                child: ListView.builder(
                   itemCount: datesInTimeline.length + 1,
                   itemBuilder: ((context, index) {
                     if (index < datesInTimeline.length) {
@@ -246,9 +245,9 @@ class _TimelineState extends State<Timeline> {
                       }
                     }
                   }),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
           SizedBox(
             height: screenHeight / 6,

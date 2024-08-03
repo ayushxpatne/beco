@@ -330,7 +330,7 @@ class TimelineController extends GetxController {
     await showCupertinoModalPopup(
         context: context,
         builder: (BuildContext builder) {
-          String taskDate = DateFormat('dd-MM-yyyy').format(currentTask.date);
+          DateFormat('dd-MM-yyyy').format(currentTask.date);
           String dateNow = DateFormat('dd-MM-yyyy').format(DateTime.now());
           String selectedDateStringe =
               DateFormat('dd-MM-yyyy').format(selectedDate.value);

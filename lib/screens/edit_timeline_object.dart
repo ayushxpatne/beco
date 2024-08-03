@@ -1,9 +1,7 @@
 import 'package:beco_productivity/controllers/timeline_controller.dart';
 import 'package:beco_productivity/models/timeline_object_model.dart';
-import 'package:beco_productivity/screens/homescreen.dart';
 import 'package:beco_productivity/widgets/button_pill.dart';
 import 'package:beco_productivity/widgets/fab.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';

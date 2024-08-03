@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:beco_productivity/controllers/timeline_controller.dart';
 
 import 'package:beco_productivity/models/timeline_object_model.dart';
@@ -127,7 +129,7 @@ class EachProjectTimelineObjects extends StatelessWidget {
                             fontWeight: FontWeight.w600),
                       ),
                     ),
-                    ...eventsOnDate!.map((currentTask) {
+                    ...eventsOnDate.map((currentTask) {
                       return GestureDetector(
                         onTap: () => {
                           Get.to(() => EditTimelineObject(

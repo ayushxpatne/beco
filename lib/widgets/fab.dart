@@ -21,6 +21,7 @@ class FABPill extends StatelessWidget {
       height: 64,
       width: 150,
       child: FloatingActionButton.extended(
+          shape: const StadiumBorder(),
           backgroundColor: backgroundColor ?? ThemeColors.accentMain,
           label: Text(labelFAB, style: textStyleFAB),
           onPressed: () => onTapFAB()),
